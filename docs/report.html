@@ -96,11 +96,9 @@
 <body>
     <main class="shell">
         <nav class="topbar" aria-label="Main navigation">
-            <a class="brand" href="{{ '#' if static_export else url_for('index') }}">CUSTOMER ANALYTICS</a>
+            <a class="brand" href="#">CUSTOMER ANALYTICS</a>
             <div class="top-actions">
-                {% if not static_export %}
-                <a class="toplink" href="{{ url_for('index') }}">Prediction tool</a>
-                {% endif %}
+
                 <a class="toplink" href="https://github.com/meenakshi-sethi/customer-churn-prediction" target="_blank" rel="noreferrer">View on GitHub &nearr;</a>
             </div>
         </nav>
@@ -114,23 +112,23 @@
         <section class="metrics" aria-label="Dataset summary">
             <article class="metric">
                 <div class="metric-label">Customers analyzed</div>
-                <div class="metric-value">{{ "{:,}".format(summary.customers) }}</div>
+                <div class="metric-value">7,043</div>
                 <div class="metric-note">Telco customer records</div>
             </article>
             <article class="metric">
                 <div class="metric-label">Overall churn rate</div>
-                <div class="metric-value">{{ summary.churn_rate }}%</div>
-                <div class="metric-note">{{ "{:,}".format(summary.churners) }} customers churned</div>
+                <div class="metric-value">26.5%</div>
+                <div class="metric-note">1,869 customers churned</div>
             </article>
             <article class="metric">
                 <div class="metric-label">Monthly charges / churned accounts</div>
-                <div class="metric-value">${{ "{:,.0f}".format(summary.churn_monthly_charges) }}</div>
+                <div class="metric-value">$139,131</div>
                 <div class="metric-note">Monthly bill value in the churned cohort</div>
             </article>
             <article class="metric">
                 <div class="metric-label">Average tenure</div>
-                <div class="metric-value">{{ summary.churn_tenure }} <small>mo</small></div>
-                <div class="metric-note">Churned; {{ summary.retained_tenure }} months for retained</div>
+                <div class="metric-value">18.0 <small>mo</small></div>
+                <div class="metric-note">Churned; 37.6 months for retained</div>
             </article>
         </section>
 
@@ -144,9 +142,23 @@
                     <div>
                         <label class="selector-label" for="segment-select">Compare by</label>
                         <select id="segment-select">
-                            {% for label in segment_data.keys() %}
-                            <option value="{{ label }}">{{ label }}</option>
-                            {% endfor %}
+
+                            <option value="Contract">Contract</option>
+
+                            <option value="Internet service">Internet service</option>
+
+                            <option value="Payment method">Payment method</option>
+
+                            <option value="Partner status">Partner status</option>
+
+                            <option value="Dependents">Dependents</option>
+
+                            <option value="Senior citizen">Senior citizen</option>
+
+                            <option value="Gender">Gender</option>
+
+                            <option value="Tenure">Tenure</option>
+
                         </select>
                     </div>
                 </div>
@@ -157,9 +169,15 @@
                 <h2 class="section-title">What stands out</h2>
                 <p class="section-note">Patterns in this dataset</p>
                 <ul class="insights">
-                    {% for insight in insights %}
-                    <li><span class="insight-mark"></span>{{ insight }}</li>
-                    {% endfor %}
+
+                    <li><span class="insight-mark"></span>Month-to-month customers have the highest contract-segment churn rate (42.7%).</li>
+
+                    <li><span class="insight-mark"></span>Fiber optic customers have the highest internet-service churn rate (41.9%).</li>
+
+                    <li><span class="insight-mark"></span>Electronic check customers have the highest payment-method churn rate (45.3%).</li>
+
+                    <li><span class="insight-mark"></span>Customers who churned averaged 18.0 months of tenure, versus 37.6 months for retained customers.</li>
+
                 </ul>
                 <p class="footnote">These are descriptive associations, not causal effects. Segment memberships overlap across charts.</p>
             </aside>
@@ -192,14 +210,28 @@
                 <p class="section-note">Treat these as hypotheses; validate impact with controlled tests.</p>
             </div>
             <div class="action-list">
-                {% for action in actions %}
+
                 <article class="action">
-                    <div class="action-rank">PRIORITY {{ action.rank }}</div>
-                    <h3>{{ action.title }}</h3>
-                    <p class="action-metric">{{ action.metric }}</p>
-                    <p>{{ action.detail }}</p>
+                    <div class="action-rank">PRIORITY 01</div>
+                    <h3>Strengthen first-year retention</h3>
+                    <p class="action-metric">47.4% churn · 1,037 churned</p>
+                    <p>The 0-12 months group accounts for 55.5% of all churned customers. Test onboarding and early-tenure support, then measure against a holdout.</p>
                 </article>
-                {% endfor %}
+
+                <article class="action">
+                    <div class="action-rank">PRIORITY 02</div>
+                    <h3>Review month-to-month offers</h3>
+                    <p class="action-metric">42.7% churn · 1,655 churned</p>
+                    <p>Compare retention offers or contract options for this group. Its size makes it a high-volume segment, but results should be tested rather than assumed.</p>
+                </article>
+
+                <article class="action">
+                    <div class="action-rank">PRIORITY 03</div>
+                    <h3>Investigate electronic-check experience</h3>
+                    <p class="action-metric">45.3% churn · 1,071 churned</p>
+                    <p>Check billing and payment friction for electronic-check customers before testing a payment-method intervention.</p>
+                </article>
+
             </div>
         </section>
 
@@ -229,7 +261,7 @@
     </main>
 
     <script>
-        const segmentData = {{ segment_data|tojson }};
+        const segmentData = {"Contract": [{"churn_rate": 42.7, "churn_share": 88.6, "churners": 1655, "customers": 3875, "label": "Month-to-month"}, {"churn_rate": 11.3, "churn_share": 8.9, "churners": 166, "customers": 1473, "label": "One year"}, {"churn_rate": 2.8, "churn_share": 2.6, "churners": 48, "customers": 1695, "label": "Two year"}], "Dependents": [{"churn_rate": 31.3, "churn_share": 82.6, "churners": 1543, "customers": 4933, "label": "No"}, {"churn_rate": 15.5, "churn_share": 17.4, "churners": 326, "customers": 2110, "label": "Yes"}], "Gender": [{"churn_rate": 26.9, "churn_share": 50.2, "churners": 939, "customers": 3488, "label": "Female"}, {"churn_rate": 26.2, "churn_share": 49.8, "churners": 930, "customers": 3555, "label": "Male"}], "Internet service": [{"churn_rate": 41.9, "churn_share": 69.4, "churners": 1297, "customers": 3096, "label": "Fiber optic"}, {"churn_rate": 19.0, "churn_share": 24.6, "churners": 459, "customers": 2421, "label": "DSL"}, {"churn_rate": 7.4, "churn_share": 6.0, "churners": 113, "customers": 1526, "label": "No"}], "Partner status": [{"churn_rate": 33.0, "churn_share": 64.2, "churners": 1200, "customers": 3641, "label": "No"}, {"churn_rate": 19.7, "churn_share": 35.8, "churners": 669, "customers": 3402, "label": "Yes"}], "Payment method": [{"churn_rate": 45.3, "churn_share": 57.3, "churners": 1071, "customers": 2365, "label": "Electronic check"}, {"churn_rate": 19.1, "churn_share": 16.5, "churners": 308, "customers": 1612, "label": "Mailed check"}, {"churn_rate": 16.7, "churn_share": 13.8, "churners": 258, "customers": 1544, "label": "Bank transfer (automatic)"}, {"churn_rate": 15.2, "churn_share": 12.4, "churners": 232, "customers": 1522, "label": "Credit card (automatic)"}], "Senior citizen": [{"churn_rate": 41.7, "churn_share": 25.5, "churners": 476, "customers": 1142, "label": "Senior citizen"}, {"churn_rate": 23.6, "churn_share": 74.5, "churners": 1393, "customers": 5901, "label": "Non-senior"}], "Tenure": [{"churn_rate": 47.4, "churn_share": 55.5, "churners": 1037, "customers": 2186, "label": "0-12 months"}, {"churn_rate": 28.7, "churn_share": 15.7, "churners": 294, "customers": 1024, "label": "13-24 months"}, {"churn_rate": 20.4, "churn_share": 17.4, "churners": 325, "customers": 1594, "label": "25-48 months"}, {"churn_rate": 9.5, "churn_share": 11.4, "churners": 213, "customers": 2239, "label": "49-72 months"}]};
         const select = document.getElementById('segment-select');
         const chart = new Chart(document.getElementById('segment-chart'), {
             type: 'bar',

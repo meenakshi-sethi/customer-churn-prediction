@@ -111,6 +111,7 @@ def report():
         segment_data=segment_data,
         insights=insights,
         actions=actions,
+        static_export=app.config.get('STATIC_REPORT_EXPORT', False),
     )
 
 @app.route('/', methods=['GET', 'POST'])

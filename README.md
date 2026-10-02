@@ -46,3 +46,18 @@ changing dependencies, edit `pyproject.toml`, then run `uv lock` and `uv sync`.
 The dataset and generated model files are excluded from Git; download the dataset
 and rerun the notebook to recreate the model artifacts locally. The Flask and
 FastAPI apps load those artifacts at startup.
+
+## Share the report
+
+Generate a static HTML snapshot after setting up the dataset and model artifacts:
+
+```bash
+uv run python -m scripts.build_static_report
+```
+
+Commit the generated `docs/report.html`, then in GitHub open **Settings → Pages**
+and select **Deploy from a branch**, `main`, and `/docs`. The shareable page will
+be `https://meenakshi-sethi.github.io/customer-churn-prediction/report.html`.
+Rebuild the snapshot and commit it again whenever the dataset or report changes.
+GitHub Pages hosts this report only; the Flask prediction tool still needs a
+Python app host.
