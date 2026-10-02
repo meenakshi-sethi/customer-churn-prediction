@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+WA_Fn-UseC_-Telco-Customer-Churn.csv
+data/WA_Fn-UseC_-Telco-Customer-Churn.csv
+best_model.pkl
+encoder.pkl
+scaler.pkl

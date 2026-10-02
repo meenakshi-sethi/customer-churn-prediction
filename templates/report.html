@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Churn Insights | Customer Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #172b2b;
+            --muted: #627472;
+            --line: #dce6e2;
+            --paper: #f4f7f5;
+            --white: #ffffff;
+            --teal: #087e75;
+            --teal-light: #e1f2ed;
+            --coral: #d65e4c;
+            --gold: #c58a27;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+        }
+        a { color: var(--teal); }
+        .shell { max-width: 1120px; margin: 0 auto; padding: 28px 24px 56px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 42px; }
+        .brand { color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none; }
+        .top-actions { display: flex; align-items: center; gap: 20px; }
+        .toplink { font-size: 14px; font-weight: 600; text-decoration: none; }
+        .eyebrow { color: var(--teal); font: 500 12px 'IBM Plex Mono', monospace; text-transform: uppercase; }
+        h1 { margin: 10px 0 8px; font-size: clamp(30px, 4vw, 42px); line-height: 1.1; }
+        .intro { max-width: 660px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+        .header { margin-bottom: 28px; }
+        .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0 30px; }
+        .metric { min-height: 116px; padding: 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+        .metric-label { color: var(--muted); font-size: 13px; }
+        .metric-value { margin-top: 12px; font-size: 28px; font-weight: 700; line-height: 1; }
+        .metric-note { margin-top: 8px; color: var(--muted); font-size: 12px; }
+        .section-title { margin: 0 0 6px; font-size: 18px; }
+        .section-note { margin: 0; color: var(--muted); font-size: 13px; }
+        .analysis { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, 0.85fr); gap: 16px; align-items: stretch; }
+        .chart-panel, .insight-panel { padding: 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+        .analysis > *, .canvas-wrap { min-width: 0; }
+        .selector-label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; }
+        select { min-height: 38px; max-width: 190px; padding: 0 30px 0 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--white); color: var(--ink); font: inherit; font-size: 13px; }
+        .canvas-wrap { position: relative; height: 330px; }
+        .chart-panel canvas { max-width: 100%; }
+        .insights { display: grid; gap: 0; margin: 12px 0 0; padding: 0; list-style: none; }
+        .insights li { padding: 14px 0; border-top: 1px solid var(--line); color: var(--ink); font-size: 14px; line-height: 1.5; }
+        .insights li:first-child { border-top: 0; }
+        .insight-mark { display: inline-block; width: 7px; height: 7px; margin: 0 8px 1px 0; border-radius: 50%; background: var(--coral); }
+        .footnote { margin: 18px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .source { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+        .report-section { margin-top: 22px; padding: 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+        .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 14px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid var(--line); }
+        tbody tr:last-child td { border-bottom: 0; }
+        td:last-child, th:last-child { text-align: right; }
+        .rate-cell { color: var(--teal); font-weight: 700; }
+        .action-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+        .action { min-width: 0; padding: 18px; border-top: 3px solid var(--teal); background: var(--teal-light); }
+        .action-rank { color: var(--teal); font: 500 12px 'IBM Plex Mono', monospace; }
+        .action h3 { margin: 12px 0 8px; font-size: 16px; }
+        .action-metric { margin: 0 0 8px; color: var(--coral); font-size: 13px; font-weight: 700; }
+        .action p:last-child { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+        .method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 14px; }
+        .method-grid h3 { margin: 0 0 6px; font-size: 14px; }
+        .method-grid p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+        @media (max-width: 760px) {
+            .shell { padding: 22px 16px 40px; }
+            .topbar { margin-bottom: 32px; }
+            .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .analysis { grid-template-columns: 1fr; }
+            .action-list { grid-template-columns: 1fr; }
+            .method-grid { grid-template-columns: 1fr; }
+            .chart-header { flex-direction: column; }
+            .canvas-wrap { height: 290px; }
+        }
+        @media (max-width: 380px) {
+            .metric { padding: 14px; }
+            .metric-value { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <nav class="topbar" aria-label="Main navigation">
+            <a class="brand" href="{{ url_for('index') }}">CUSTOMER ANALYTICS</a>
+            <div class="top-actions">
+                <a class="toplink" href="{{ url_for('index') }}">Prediction tool</a>
+                <a class="toplink" href="https://github.com/meenakshi-sethi/customer-churn-prediction" target="_blank" rel="noreferrer">View on GitHub &nearr;</a>
+            </div>
+        </nav>
+
+        <header class="header">
+            <div class="eyebrow">Telco customer portfolio / 7,043 accounts</div>
+            <h1>Where customers leave</h1>
+            <p class="intro">A segment-level view of customer attrition across contract, service, payment, and customer profile. Compare churn rate with segment volume to see both risk and scale.</p>
+        </header>
+
+        <section class="metrics" aria-label="Dataset summary">
+            <article class="metric">
+                <div class="metric-label">Customers analyzed</div>
+                <div class="metric-value">{{ "{:,}".format(summary.customers) }}</div>
+                <div class="metric-note">Telco customer records</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">Overall churn rate</div>
+                <div class="metric-value">{{ summary.churn_rate }}%</div>
+                <div class="metric-note">{{ "{:,}".format(summary.churners) }} customers churned</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">Monthly charges / churned accounts</div>
+                <div class="metric-value">${{ "{:,.0f}".format(summary.churn_monthly_charges) }}</div>
+                <div class="metric-note">Monthly bill value in the churned cohort</div>
+            </article>
+            <article class="metric">
+                <div class="metric-label">Average tenure</div>
+                <div class="metric-value">{{ summary.churn_tenure }} <small>mo</small></div>
+                <div class="metric-note">Churned; {{ summary.retained_tenure }} months for retained</div>
+            </article>
+        </section>
+
+        <section class="analysis" aria-label="Churn analysis">
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <div>
+                        <h2 class="section-title">Churn rate by segment</h2>
+                        <p class="section-note">Share of customers in each group who churned; hover for counts</p>
+                    </div>
+                    <div>
+                        <label class="selector-label" for="segment-select">Compare by</label>
+                        <select id="segment-select">
+                            {% for label in segment_data.keys() %}
+                            <option value="{{ label }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="canvas-wrap"><canvas id="segment-chart" role="img" aria-label="Bar chart of churn rates by customer segment"></canvas></div>
+            </div>
+
+            <aside class="insight-panel">
+                <h2 class="section-title">What stands out</h2>
+                <p class="section-note">Patterns in this dataset</p>
+                <ul class="insights">
+                    {% for insight in insights %}
+                    <li><span class="insight-mark"></span>{{ insight }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="footnote">These are descriptive associations, not causal effects. Segment memberships overlap across charts.</p>
+            </aside>
+        </section>
+
+        <section class="report-section" aria-labelledby="breakdown-title">
+            <div class="section-heading">
+                <div>
+                    <h2 class="section-title" id="breakdown-title">Segment breakdown</h2>
+                    <p class="section-note">Counts and churn rates for the selected customer dimension</p>
+                </div>
+                <span class="eyebrow" id="table-segment-name">Contract</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Customer segment</th><th>Customers</th><th>Churned</th><th>Churn rate</th><th>Share of churned</th></tr>
+                    </thead>
+                    <tbody id="segment-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="report-section" aria-labelledby="actions-title">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">From findings to action</div>
+                    <h2 class="section-title" id="actions-title">Retention priorities to test</h2>
+                </div>
+                <p class="section-note">Treat these as hypotheses; validate impact with controlled tests.</p>
+            </div>
+            <div class="action-list">
+                {% for action in actions %}
+                <article class="action">
+                    <div class="action-rank">PRIORITY {{ action.rank }}</div>
+                    <h3>{{ action.title }}</h3>
+                    <p class="action-metric">{{ action.metric }}</p>
+                    <p>{{ action.detail }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="report-section" aria-labelledby="method-title">
+            <div class="eyebrow">Reading the analysis</div>
+            <h2 class="section-title" id="method-title">Definitions &amp; limitations</h2>
+            <div class="method-grid">
+                <div>
+                    <h3>Churn rate</h3>
+                    <p>Churned customers divided by all customers within a segment. The dashboard reports associations in this dataset, not causal relationships.</p>
+                </div>
+                <div>
+                    <h3>Monthly charges</h3>
+                    <p>The sum of listed monthly charges for accounts marked as churned. It is a cohort-size indicator, not a forecast of recoverable revenue.</p>
+                </div>
+                <div>
+                    <h3>Source &amp; scope</h3>
+                    <p>7,043 customer records from the Telco Customer Churn dataset. Segment percentages are rounded to one decimal place; groups across dimensions overlap.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="source">
+            Source: <a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn" target="_blank" rel="noreferrer">IBM Telco Customer Churn dataset on Kaggle</a>.
+            Project: <a href="https://github.com/meenakshi-sethi/customer-churn-prediction" target="_blank" rel="noreferrer">Customer Churn Prediction on GitHub</a>.
+        </footer>
+    </main>
+
+    <script>
+        const segmentData = {{ segment_data|tojson }};
+        const select = document.getElementById('segment-select');
+        const chart = new Chart(document.getElementById('segment-chart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Churn rate',
+                    data: [],
+                    backgroundColor: [],
+                    borderRadius: 3,
+                    maxBarThickness: 54
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => ` ${context.raw}% churn`,
+                            afterLabel: (context) => {
+                                const row = segmentData[select.value][context.dataIndex];
+                                return `${row.churners.toLocaleString()} churned of ${row.customers.toLocaleString()} customers`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: '#e8efec' },
+                        ticks: { callback: (value) => `${value}%`, color: '#627472' }
+                    },
+                    y: { grid: { display: false }, ticks: { color: '#172b2b' } }
+                }
+            }
+        });
+        function updateChart() {
+            const rows = segmentData[select.value];
+            chart.data.labels = rows.map((row) => row.label);
+            chart.data.datasets[0].data = rows.map((row) => row.churn_rate);
+            chart.data.datasets[0].backgroundColor = rows.map((_, index) => index === 0 ? '#d65e4c' : '#087e75');
+            document.getElementById('table-segment-name').textContent = select.value;
+            document.getElementById('segment-table-body').innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row.label}</td>
+                    <td>${row.customers.toLocaleString()}</td>
+                    <td>${row.churners.toLocaleString()}</td>
+                    <td class="rate-cell">${row.churn_rate}%</td>
+                    <td>${row.churn_share}%</td>
+                </tr>
+            `).join('');
+            chart.update();
+        }
+        select.addEventListener('change', updateChart);
+        updateChart();
+    </script>
+</body>
+</html>

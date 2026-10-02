@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Customer Churn Prediction</h1>
+        <p class="text-center mb-4">
+            <a href="{{ url_for('report') }}">Explore churn insights</a>
+            <span class="mx-2">|</span>
+            <a href="https://github.com/meenakshi-sethi/customer-churn-prediction" target="_blank" rel="noreferrer">View project on GitHub</a>
+        </p>
+        <div class="alert alert-light border" role="note">
+            <strong>What this predicts:</strong> whether a customer is likely to leave the telecom service.
+            Enter the customer's account, services, and billing details, then select <em>Predict churn risk</em>.
+            The probability is the model's estimate, not a guarantee of what the customer will do.
+        </div>
+        <form method="POST" class="mt-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <h2 class="h5 mb-3">Customer account</h2>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select id="gender" name="gender" class="form-select" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="SeniorCitizen" class="form-label">Senior Citizen</label>
+                        <select id="SeniorCitizen" name="SeniorCitizen" class="form-select" required>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Partner" class="form-label">Partner</label>
+                        <select id="Partner" name="Partner" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Dependents" class="form-label">Dependents</label>
+                        <select id="Dependents" name="Dependents" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tenure" class="form-label">Tenure</label>
+                        <input type="number" id="tenure" name="tenure" class="form-control" min="0" max="72" step="1" placeholder="e.g. 12" required>
+                        <div class="form-text">Number of months with the provider (0-72).</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <h2 class="h5 mb-3">Services</h2>
+                    <div class="mb-3">
+                        <label for="PhoneService" class="form-label">Phone Service</label>
+                        <select id="PhoneService" name="PhoneService" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="MultipleLines" class="form-label">Multiple Lines</label>
+                        <select id="MultipleLines" name="MultipleLines" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No phone service">No phone service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="InternetService" class="form-label">Internet Service</label>
+                        <select id="InternetService" name="InternetService" class="form-select" required>
+                            <option value="DSL">DSL</option>
+                            <option value="Fiber optic">Fiber optic</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="OnlineSecurity" class="form-label">Online Security</label>
+                        <select id="OnlineSecurity" name="OnlineSecurity" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="OnlineBackup" class="form-label">Online Backup</label>
+                        <select id="OnlineBackup" name="OnlineBackup" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="DeviceProtection" class="form-label">Device Protection</label>
+                        <select id="DeviceProtection" name="DeviceProtection" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="TechSupport" class="form-label">Tech Support</label>
+                        <select id="TechSupport" name="TechSupport" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="StreamingTV" class="form-label">Streaming TV</label>
+                        <select id="StreamingTV" name="StreamingTV" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="StreamingMovies" class="form-label">Streaming Movies</label>
+                        <select id="StreamingMovies" name="StreamingMovies" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No internet service">No internet service</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <h2 class="h5 mb-3">Contract &amp; billing</h2>
+                    <div class="mb-3">
+                        <label for="Contract" class="form-label">Contract</label>
+                        <select id="Contract" name="Contract" class="form-select" required>
+                            <option value="Month-to-month">Month-to-month</option>
+                            <option value="One year">One year</option>
+                            <option value="Two year">Two year</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="PaperlessBilling" class="form-label">Paperless Billing</label>
+                        <select id="PaperlessBilling" name="PaperlessBilling" class="form-select" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="PaymentMethod" class="form-label">Payment Method</label>
+                        <select id="PaymentMethod" name="PaymentMethod" class="form-select" required>
+                            <option value="Electronic check">Electronic check</option>
+                            <option value="Mailed check">Mailed check</option>
+                            <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                            <option value="Credit card (automatic)">Credit card (automatic)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="MonthlyCharges" class="form-label">Monthly Charges ($)</label>
+                        <input type="number" step="0.01" min="0" max="200" id="MonthlyCharges" name="MonthlyCharges" class="form-control" placeholder="e.g. 70.35" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="TotalCharges" class="form-label">Total Charges to Date ($)</label>
+                        <input type="number" step="0.01" min="0" max="10000" id="TotalCharges" name="TotalCharges" class="form-control" placeholder="e.g. 844.20" required>
+                        <div class="form-text">Cumulative charges since the customer joined.</div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Predict churn risk</button>
+        </form>
+
+        {% if prediction %}
+        <div class="mt-4 alert {{ 'alert-warning' if prediction == 'Churn' else 'alert-success' }}" role="status">
+            <h2 class="h4">Prediction: {{ 'Likely to churn' if prediction == 'Churn' else 'Likely to stay' }}</h2>
+            <p class="mb-2">Estimated churn probability: <strong>{{ "%.1f"|format(probability * 100) }}%</strong></p>
+            <p class="mb-0">This is a model estimate based on the details entered, not a certainty about an individual customer.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
